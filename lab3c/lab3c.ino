@@ -17,13 +17,17 @@ void setup() {
 }
 
 void loop() {
- // if player is alive
+  // if player is alive
+  if (alive) {
     // listen for keys for movement
     // listen for keys for shooting
     // destory enemies if hit
     // move player if moved
     // move enemies
     // check if enemies are at base
-        // set alive accordingly
- // else prompt user to begin 
+    // set alive accordingly
+    
+  } else {
+    // prompt user to begin
+  }
 }
