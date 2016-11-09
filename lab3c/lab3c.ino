@@ -86,11 +86,6 @@ void loop() {
   if (alive) {
       static byte ledOn[4][4][4];
 
-  byte x = 0;
-  byte y = 0;
-  byte z = 0;
-  static char message[60];
-
   if (Serial.available()) {
     char control = Serial.read();
     if (control == 'U') {
