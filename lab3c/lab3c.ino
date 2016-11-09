@@ -1,8 +1,8 @@
-player
-numEnemies
-enemies
-velocity
-alive
+int[3] player;
+int maxEnemies = 16;
+int[maxEnemies][3] enemies;
+int velocity;
+int alive = 1;
 
 // vector of int[3] for enemies, int[3] holds x, y, z positions
 // int[3] for player, holds x, y, z positions
