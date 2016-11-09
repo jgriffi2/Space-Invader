@@ -84,9 +84,31 @@ void display(byte values[4][4][4])
 void loop() {
   // if player is alive
   if (alive) {
+      static byte ledOn[4][4][4];
+
+  byte x = 0;
+  byte y = 0;
+  byte z = 0;
+  static char message[60];
+
+  if (Serial.available()) {
+    char control = Serial.read();
+    if (control == 'U') {
+      
+    } else if (control == 'D') {
+      
+    } else if (control == 'L') {
+      
+    } else if (control == 'R') {
+      
+    } else if (control == 'S') {
+      // check if enemy has same xy coords (destroy if so)
+    } else if (control == 'Q') {
+      // GET OUT 
+    }
+  }
     // listen for keys for movement
     // listen for keys for shooting
-    // destory enemies if hit
     // move player if moved
     // move enemies
     // check if enemies are at base
