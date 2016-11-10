@@ -1,6 +1,6 @@
 int player[3];
 int maxEnemies = 16;
-int enemies[maxEnemies][3];
+int enemies[16][3];
 int waitPeriod = 100;
 int iteration = 0;
 int alive = 1;
@@ -10,6 +10,125 @@ int addEnemyIteration = 0;
 
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
+
+static void movePlayer(char control) {
+  if (control == 'U') {
+    if (player[1] != 3) player[1] = player[1] + 1;
+
+  } else if (control == 'D') {
+    if (player[1] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'L') {
+    if (player[0] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'R') {
+    if (player[0] != 3) player[1] = player[1] + 1;
+  }
+}
+
+static void destroyEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[2] != -1) {
+      if (player[0] == enemy[0] && player[1] == enemy[1]) {
+        LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
+        int temp[3] = {0, 0, -1};
+        memcpy(enemies[i], temp, sizeof(int[3]));
+      }
+    }
+  }
+}
+
+static void resetLEDs() {
+  for (int x = 0; x < 4; x++) {
+    for (int y = 0; y < 4; y++) {
+      for (int z = 0; z < 4; z++) {
+        LEDon[x][y][z] = 0;
+      }
+    }
+  }
+}
+
+static bool checkDirection() {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[2] != -1) {
+      if (positive) {
+        if (enemy[0] == 3) {
+          positive = !positive;
+          return true;
+        }
+      } else {
+        if (enemy[0] == 0) {
+          positive = !positive;
+          return true;
+        }
+      }
+    }
+  }
+}
+
+ static void reset_board() {
+    int newPlayer[3] = {0, 0, 0};
+    memcpy(player, newPlayer, sizeof(int[3]));
+    for (int enemy = 0; enemy < maxEnemies; enemy++) {
+      int temp[3] = {0, 0, -1};
+      memcpy(enemies[enemy], temp, sizeof(int[3]));
+    }
+    waitPeriod = 100;
+    iteration = 0;
+    resetLEDs();
+
+  }
+
+static void moveEnemiesDown() {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[2] != -1) {
+      enemy[2] = enemy[2] - 1;
+      memcpy(enemies[i], enemy, sizeof(int[3]));
+      if (enemy[2] == 0) {
+        alive--;
+        reset_board();
+      }
+    }
+  }
+}
+
+static void moveEnemiesSide() {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[2] != -1) {
+      if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
+      else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
+      memcpy(enemies[i], enemy, sizeof(int[3]));
+    }
+  }
+}
+
+  static void death_blink() {
+    for (byte i = 0; i < 5; i++) {
+      display(LEDon);
+      delay(1000);
+    }
+  }
+
+ 
+
+  static void addEnemy() {
+    for (int i = 0; i < maxEnemies; i++) {
+      int enemy[3];
+      memcpy(enemy, enemies[i], sizeof(int[3]));
+      if (enemy[2] == -1) {
+        int temp[3] = { (int)random(0, 4), (int)random(0, 4), 3 };
+        memcpy(enemies[i], temp, sizeof(int[3]));
+      }
+    }
+  }
 
 void setup() {
   // Make all of the N-wire and P-wire pins outputs
@@ -105,113 +224,16 @@ void loop() {
       iteration = 0;
       waitPeriod--;
     }
-    if (addEmemyIteration == 10 * waitPeriod) {
-      addEmemyIteration = 0;
-      addEmemy();
+    if (addEnemyIteration == 10 * waitPeriod) {
+      addEnemyIteration = 0;
+      addEnemy();
     }
     iteration++;
     display(LEDon);
   } else {
     death_blink();
     reset_board();
+    alive = 1;
   }
 }
-
-static void movePlayer(control) {
-  if (control == 'U') {
-    if (player[1] != 3) player[1] = player[1] + 1;
-
-  } else if (control == 'D') {
-    if (player[1] != 0) player[1] = player[1] - 1;
-
-  } else if (control == 'L') {
-    if (player[0] != 0) player[1] = player[1] - 1;
-
-  } else if (control == 'R') {
-    if (player[0] != 3) player[1] = player[1] + 1;
-  }
-}
-
-static void destroyEnemies() {
-  for (int i = 0; i < maxEnemies; i++) {
-    int enemy[3] = enemies[i];
-    if (enemy[2] != -1) {
-      if (player[0] == enemy[0] && player[1] == enemy[1]) {
-        LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
-      }
-    }
-  }
-}
-
-static void resetLEDs() {
-  for (int x = 0; x < 4; x++) {
-    for (int y = 0; y < 4; y++) {
-      for (int z = 0; z < 4; z++) {
-        LEDon[x][y][z] = 0;
-      }
-    }
-  }
-}
-
-static void checkDirection() {
-  for (int i = 0; i < maxEnemies; i++) {
-    int enemy[3] = enemies[i];
-    if (enemy[2] != -1) {
-      if (positive) {
-        if (enemy[0] == 3) positive = !positive;
-      } else {
-        if (enemy[0] == 0) positive = !positive;
-      }
-    }
-  }
-}
-
-static void moveEnemiesDown() {
-  for (int i = 0; i < maxEnemies; i++) {
-    int enemy[3] = enemies[i];
-    if (enemy[2] != -1) {
-      enemy[2] = enemy[2] - 1;
-      if (enemy[2] == 0) {
-        alive--;
-        reset_board();
-      }
-    }
-  }
-}
-
-static void moveEnemiesSide() {
-  for (int i = 0; i < maxEnemies; i++) {
-    int enemy[3] = enemies[i];
-    if (enemy[2] != -1) {
-      if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
-      else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
-    }
-  }
-
-  static void death_blink() {
-    for (byte i = 0; i < 5; i++) {
-      display(LEDon);
-      delay(1000);
-    }
-  }
-
-  static void reset_board() {
-    player = {0, 0, 0};
-    for (int enemy = 0; enemy < maxEnemies; enemy++) {
-      enemies[enemy] = {0, 0, -1};
-    }
-    waitPeriod = 100;
-    iteration = 0;
-    resetLEDs();
-
-  }
-
-  static void addEnemy() {
-    for (int i = 0; i < maxEnemies; i++) {
-      int enemy[3] = enemies[i];
-      if (enemy[2] == -1) {
-        enemy = { (int)random(0, 4), (int)random(0, 4), 3 };
-      }
-    }
-  }
 
