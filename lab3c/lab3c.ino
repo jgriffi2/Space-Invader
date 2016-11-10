@@ -17,6 +17,7 @@ void setup() {
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
   }
+  reset_board();
 
   Serial.begin(115200);
   Serial.setTimeout(100);
@@ -175,8 +176,10 @@ static void death_blink() {
 static void reset_board() {
   player = {0,0,0};
   for (int enemy = 0; enemy < maxEnemies; enemy++) {
-    enemies[enemy] = {0,0,0};
+    enemies[enemy] = {0,0,-1};
   }
+  waitPeriod = 100;
+  iteration = 0;
   resetLEDs();
 }
 
