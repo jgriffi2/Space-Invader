@@ -4,7 +4,6 @@ int enemies[maxEnemies][3];
 int velocity;
 int alive = 1;
 byte LEDon[4][4][4];
-byte allOn[4][4][4];
 
 // vector of int[3] for enemies, int[3] holds x, y, z positions
 // int[3] for player, holds x, y, z positions
@@ -22,13 +21,6 @@ void setup() {
     digitalWrite(POSITIVE_PINS[i], HIGH);
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
-  }
-  for (byte i = 0; i < 4; i++) {
-    for (byte j = 0; j < 4; j++) {
-      for (byte k = 0; k < 4; k++) {
-        allOn[i][j][k] = 1;
-      }
-    }
   }
   Serial.begin(115200);
   Serial.setTimeout(100);
@@ -110,10 +102,7 @@ void loop() {
         alive = 0;
       }
     }
-    // move player if moved
-    // move enemies
-    // check if enemies are at base
-    // set alive accordingly
+
   } else {
     death_blink();
     reset_board();
@@ -130,13 +119,18 @@ static void destroyEnemies() {
 
 static void death_blink() {
   for (byte i = 0; i < 5; i++) {
-    display(allOn);
+    display(LEDon);
     delay(1000);
   }
+  alive = 1;
 }
 
 static void reset_board() {
-  alive = 1;
+  player = {0, 0, 0};
+  for (int enemy = 0; enemy < maxEnemies; enemy++) {
+    enemies[enemy] = {0,0,0};
+  }
+  
   
 }
 
