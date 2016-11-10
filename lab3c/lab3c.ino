@@ -4,6 +4,7 @@ int enemies[maxEnemies][3];
 int velocity;
 int alive = 1;
 byte LEDon[4][4][4];
+byte allOn[4][4][4];
 
 // vector of int[3] for enemies, int[3] holds x, y, z positions
 // int[3] for player, holds x, y, z positions
@@ -22,7 +23,13 @@ void setup() {
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
   }
-  
+  for (byte i = 0; i < 4; i++) {
+    for (byte j = 0; j < 4; j++) {
+      for (byte k = 0; k < 4; k++) {
+        allOn[i][j][k] = 1;
+      }
+    }
+  }
   Serial.begin(115200);
   Serial.setTimeout(100);
 }
@@ -69,12 +76,12 @@ void display(byte values[4][4][4])
     // Set up all the N-wires first
     for (byte nNum = 0; nNum < 8; nNum++) { // iterate through N-wires
       byte value = getValue(values, pNum, nNum); // look up the value
-      if(value > 0) digitalWrite(NEGATIVE_PINS[nNum], LOW);
+      if (value > 0) digitalWrite(NEGATIVE_PINS[nNum], LOW);
       else digitalWrite(NEGATIVE_PINS[nNum], HIGH);
     }
-    
+
     digitalWrite(POSITIVE_PINS[pNum], LOW);
-    
+
     delayMicroseconds(1000);
 
     digitalWrite(POSITIVE_PINS[pNum], HIGH);
@@ -85,36 +92,31 @@ void display(byte values[4][4][4])
 void loop() {
   // if player is alive
   if (alive) {
-      static byte ledOn[4][4][4];
-
-  if (Serial.available()) {
-    char control = Serial.read();
-    if (control == 'U') {
-      if (player[1] != 3) player[1] = player[1] + 1;
-      
-    } else if (control == 'D') {
-      if (player[1] != 0) player[1] = player[1] - 1;
-      
-    } else if (control == 'L') {
-      if (player[0] != 0) player[1] = player[1] - 1;
-      
-    } else if (control == 'R') {
-      if (player[0] != 3) player[1] = player[1] + 1;
-      
-    } else if (control == 'S') {
-      // check if enemy has same xy coords (destroy if so)
-      destroyEnemies();
-    } else if (control == 'Q') {
-      // GET OUT 
+    static byte ledOn[4][4][4];
+    if (Serial.available()) {
+      // updating according to player actions
+      char control = Serial.read();
+      if (control == 'U') {
+        if (player[1] != 3) player[1] = player[1] + 1;
+      } else if (control == 'D') {
+        if (player[1] != 0) player[1] = player[1] - 1;
+      } else if (control == 'L') {
+        if (player[0] != 0) player[1] = player[1] - 1;
+      } else if (control == 'R') {
+        if (player[0] != 3) player[1] = player[1] + 1;
+      } else if (control == 'S') {
+        destroyEnemies();
+      } else if (control == 'Q') {
+        alive = 0;
+      }
     }
-  }
     // move player if moved
     // move enemies
     // check if enemies are at base
     // set alive accordingly
-    
   } else {
-    // prompt user to begin
+    death_blink();
+    reset_board();
   }
 }
 
@@ -124,5 +126,17 @@ static void destroyEnemies() {
       LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
     }
   }
+}
+
+static void death_blink() {
+  for (byte i = 0; i < 5; i++) {
+    display(allOn);
+    delay(1000);
+  }
+}
+
+static void reset_board() {
+  alive = 1;
+  
 }
 
