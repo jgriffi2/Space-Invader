@@ -6,7 +6,6 @@ int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
-
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
 
@@ -166,14 +165,15 @@ static void moveEnemiesSide() {
 
 static void death_blink() {
   for (byte i = 0; i < 5; i++) {
-    display(allOn);
+    display(LEDon);
     delay(1000);
   }
 }
 
 static void reset_board() {
-  alive = 1;
-  
-
+  player = {0,0,0};
+  for (int enemy = 0; enemy < maxEnemies; enemy++) {
+    enemies[enemy] = {0,0,0};
+  }
 }
 
