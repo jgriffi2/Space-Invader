@@ -4,7 +4,11 @@ int enemies[maxEnemies][3];
 int velocity;
 int alive = 1;
 byte LEDon[4][4][4];
+<<<<<<< HEAD
 bool positive;
+=======
+byte allOn[4][4][4];
+>>>>>>> 642d6d3c536009a872e73ec4a5111e84c2a040b4
 
 // vector of int[3] for enemies, int[3] holds x, y, z positions
 // int[3] for player, holds x, y, z positions
@@ -23,7 +27,17 @@ void setup() {
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
   }
+<<<<<<< HEAD
 
+=======
+  for (byte i = 0; i < 4; i++) {
+    for (byte j = 0; j < 4; j++) {
+      for (byte k = 0; k < 4; k++) {
+        allOn[i][j][k] = 1;
+      }
+    }
+  }
+>>>>>>> 642d6d3c536009a872e73ec4a5111e84c2a040b4
   Serial.begin(115200);
   Serial.setTimeout(100);
 }
@@ -86,6 +100,7 @@ void display(byte values[4][4][4])
 void loop() {
   // if player is alive
   if (alive) {
+<<<<<<< HEAD
 
     resetLEDs();
 
@@ -118,14 +133,39 @@ void loop() {
     }
     // listen for keys for movement
     // listen for keys for shooting
+=======
+    static byte ledOn[4][4][4];
+    if (Serial.available()) {
+      // updating according to player actions
+      char control = Serial.read();
+      if (control == 'U') {
+        if (player[1] != 3) player[1] = player[1] + 1;
+      } else if (control == 'D') {
+        if (player[1] != 0) player[1] = player[1] - 1;
+      } else if (control == 'L') {
+        if (player[0] != 0) player[1] = player[1] - 1;
+      } else if (control == 'R') {
+        if (player[0] != 3) player[1] = player[1] + 1;
+      } else if (control == 'S') {
+        destroyEnemies();
+      } else if (control == 'Q') {
+        alive = 0;
+      }
+    }
+    // move player if moved
+>>>>>>> 642d6d3c536009a872e73ec4a5111e84c2a040b4
     // move enemies
     if (checkDirection()) moveEnemiesDown();
     else moveEnemiesSide();
     // check if enemies are at base
     // set alive accordingly
+<<<<<<< HEAD
 
+=======
+>>>>>>> 642d6d3c536009a872e73ec4a5111e84c2a040b4
   } else {
-    // prompt user to begin
+    death_blink();
+    reset_board();
   }
 }
 
@@ -137,6 +177,7 @@ static void destroyEnemies() {
   }
 }
 
+<<<<<<< HEAD
 static void resetLEDs() {
   for (int x = 0; x < 4; x++) {
     for (int y = 0; y < 4; y++) {
@@ -172,5 +213,17 @@ static void moveEnemiesSide() {
     if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
     else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
   }
+=======
+static void death_blink() {
+  for (byte i = 0; i < 5; i++) {
+    display(allOn);
+    delay(1000);
+  }
+}
+
+static void reset_board() {
+  alive = 1;
+  
+>>>>>>> 642d6d3c536009a872e73ec4a5111e84c2a040b4
 }
 
