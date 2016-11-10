@@ -2,6 +2,7 @@ int player[3];
 int maxEnemies = 16;
 int enemies[maxEnemies][3];
 int velocity = 100;
+int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
@@ -17,6 +18,7 @@ void setup() {
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
   }
+
   Serial.begin(115200);
   Serial.setTimeout(100);
 }
@@ -79,7 +81,9 @@ void display(byte values[4][4][4])
 void loop() {
   // if player is alive
   if (alive) {
+
     resetLEDs();
+
     if (Serial.available()) {
       char control = Serial.read();
       if (control == 'U') {
@@ -102,11 +106,12 @@ void loop() {
         alive = 0;
       }
     }
-    // listen for keys for movement
-    // listen for keys for shooting
+    // move player if moved
     // move enemies
-    if (checkDirection()) moveEnemiesDown();
-    else moveEnemiesSide();
+    if (iteration == velocity) {
+      if (checkDirection()) moveEnemiesDown();
+      else moveEnemiesSide();
+    }
     // check if enemies are at base
     // set alive accordingly
   } else {
@@ -161,16 +166,14 @@ static void moveEnemiesSide() {
 
 static void death_blink() {
   for (byte i = 0; i < 5; i++) {
-    display(LEDon);
+    display(allOn);
     delay(1000);
   }
-  alive = 1;
 }
 
 static void reset_board() {
-  player = {0, 0, 0};
-  for (int enemy = 0; enemy < maxEnemies; enemy++) {
-    enemies[enemy] = {0,0,0};
-  }
+  alive = 1;
+  
+
 }
 
