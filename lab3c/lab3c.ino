@@ -58,8 +58,7 @@ inline byte getValue(byte values[4][4][4], byte pNum, byte nNum)
    one row at a time. When this function returns, all the LEDs will be off
    again, so it needs to be called continuously for LEDs to be on.
 */
-void display(byte values[4][4][4])
-{
+void display(byte values[4][4][4]) {
   for (byte pNum = 0; pNum < 8; pNum++) { // iterate through P-wires
 
     // Set up all the N-wires first
@@ -104,6 +103,7 @@ void loop() {
       waitPeriod--;
     }
     iteration++;
+    display(LEDon);
   } else {
     death_blink();
     reset_board();
