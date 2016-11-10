@@ -6,7 +6,7 @@ import readchar
 
 class UserInputController(object):
   def __init__(self):
-    self.ser = serial.Serial('/dev/cu.usbserial-ADAPFFKjO', 9600)
+    self.ser = serial.Serial('/dev/cu.usbserial-ADAPFFKjO', 115200)
 
   def runInputLoop(self):
     while True:
