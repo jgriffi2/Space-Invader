@@ -1,8 +1,9 @@
-int[3] player;
+int player[3];
 int maxEnemies = 16;
-int[maxEnemies][3] enemies;
+int enemies[maxEnemies][3];
 int velocity;
 int alive = 1;
+byte LEDon[4][4][4];
 
 // vector of int[3] for enemies, int[3] holds x, y, z positions
 // int[3] for player, holds x, y, z positions
@@ -89,15 +90,20 @@ void loop() {
   if (Serial.available()) {
     char control = Serial.read();
     if (control == 'U') {
+      if (player[1] != 3) player[1] = player[1] + 1;
       
     } else if (control == 'D') {
+      if (player[1] != 0) player[1] = player[1] - 1;
       
     } else if (control == 'L') {
+      if (player[0] != 0) player[1] = player[1] - 1;
       
     } else if (control == 'R') {
+      if (player[0] != 3) player[1] = player[1] + 1;
       
     } else if (control == 'S') {
-
+      // check if enemy has same xy coords (destroy if so)
+      destroyEnemies();
     } else if (control == 'Q') {
       // GET OUT 
     }
@@ -111,3 +117,12 @@ void loop() {
     // prompt user to begin
   }
 }
+
+static void destroyEnemies() {
+  for (int[3] enemy : enemies) {
+    if (player[0] == enemy[0] && player[1] == enemy[1]) {
+      LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
+    }
+  }
+}
+
