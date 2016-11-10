@@ -175,5 +175,6 @@ static void reset_board() {
   for (int enemy = 0; enemy < maxEnemies; enemy++) {
     enemies[enemy] = {0,0,0};
   }
+  resetLEDs();
 }
 
