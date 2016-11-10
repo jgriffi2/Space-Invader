@@ -133,7 +133,8 @@ static void movePlayer(control) {
 }
 
 static void destroyEnemies() {
-  for (int[3] enemy : enemies) {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3] = enemies[i];
     if (enemy[2] != -1) {
       if (player[0] == enemy[0] && player[1] == enemy[1]) {
         LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
@@ -153,7 +154,8 @@ static void resetLEDs() {
 }
 
 static void checkDirection() {
-  for (int[3] enemy : enemies) {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3] = enemies[i];
     if (enemy[2] != -1) {
       if (positive) {
         if (enemy[0] == 3) positive = !positive;
@@ -165,7 +167,8 @@ static void checkDirection() {
 }
 
 static void moveEnemiesDown() {
-  for (int[3] enemy : enemies) {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3] = enemies[i];
     if (enemy[2] != -1) {
       enemy[2] = enemy[2] - 1;
       if (enemy[2] == 0) {
@@ -177,7 +180,8 @@ static void moveEnemiesDown() {
 }
 
 static void moveEnemiesSide() {
-  for (int[3] enemy : enemies) {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3] = enemies[i];
     if (enemy[2] != -1) {
       if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
       else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
