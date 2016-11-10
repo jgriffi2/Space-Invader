@@ -1,7 +1,7 @@
 int player[3];
 int maxEnemies = 16;
 int enemies[maxEnemies][3];
-int velocity = 100;
+int waitPeriod = 100;
 int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
@@ -83,6 +83,7 @@ void loop() {
 
     resetLEDs();
 
+    // move player
     if (Serial.available()) {
       char control = Serial.read();
       if (control == 'U') {
@@ -105,14 +106,15 @@ void loop() {
         alive = 0;
       }
     }
-    // move player if moved
+    
     // move enemies
-    if (iteration == velocity) {
+    if (iteration == waitPeriod) {
       if (checkDirection()) moveEnemiesDown();
       else moveEnemiesSide();
+      iteration = 0;
+      waitPeriod--;
     }
-    // check if enemies are at base
-    // set alive accordingly
+    iteration++;  
   } else {
     death_blink();
     reset_board();
