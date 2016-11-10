@@ -97,13 +97,11 @@ void loop() {
     } else if (control == 'R') {
       
     } else if (control == 'S') {
-      // check if enemy has same xy coords (destroy if so)
+
     } else if (control == 'Q') {
       // GET OUT 
     }
   }
-    // listen for keys for movement
-    // listen for keys for shooting
     // move player if moved
     // move enemies
     // check if enemies are at base
