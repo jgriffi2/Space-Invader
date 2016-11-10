@@ -87,27 +87,15 @@ void loop() {
     // move player
     if (Serial.available()) {
       char control = Serial.read();
-      if (control == 'U') {
-        if (player[1] != 3) player[1] = player[1] + 1;
-
-      } else if (control == 'D') {
-        if (player[1] != 0) player[1] = player[1] - 1;
-
-      } else if (control == 'L') {
-        if (player[0] != 0) player[1] = player[1] - 1;
-
-      } else if (control == 'R') {
-        if (player[0] != 3) player[1] = player[1] + 1;
-
+      if (control == 'U' || control == 'D' || control == 'L' || control == 'R') {
+        movePlayer(control);
       } else if (control == 'S') {
-        // check if enemy has same xy coords (destroy if so)
         destroyEnemies();
       } else if (control == 'Q') {
         resetLEDs();
         alive = 0;
       }
     }
-    
     // move enemies
     if (iteration == waitPeriod) {
       if (checkDirection()) moveEnemiesDown();
@@ -115,10 +103,25 @@ void loop() {
       iteration = 0;
       waitPeriod--;
     }
-    iteration++;  
+    iteration++;
   } else {
     death_blink();
     reset_board();
+  }
+}
+
+static void movePlayer(control) {
+  if (control == 'U') {
+    if (player[1] != 3) player[1] = player[1] + 1;
+
+  } else if (control == 'D') {
+    if (player[1] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'L') {
+    if (player[0] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'R') {
+    if (player[0] != 3) player[1] = player[1] + 1;
   }
 }
 
@@ -161,25 +164,25 @@ static void moveEnemiesDown() {
 }
 
 static void moveEnemiesSide() {
-  for (int[3] enemy: enemies) {
+  for (int[3] enemy : enemies) {
     if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
     else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
   }
 
-static void death_blink() {
-  for (byte i = 0; i < 5; i++) {
-    display(LEDon);
-    delay(1000);
+  static void death_blink() {
+    for (byte i = 0; i < 5; i++) {
+      display(LEDon);
+      delay(1000);
+    }
   }
-}
 
-static void reset_board() {
-  player = {0,0,0};
-  for (int enemy = 0; enemy < maxEnemies; enemy++) {
-    enemies[enemy] = {0,0,-1};
+  static void reset_board() {
+    player = {0, 0, 0};
+    for (int enemy = 0; enemy < maxEnemies; enemy++) {
+      enemies[enemy] = {0, 0, -1};
+    }
+    waitPeriod = 100;
+    iteration = 0;
+    resetLEDs();
   }
-  waitPeriod = 100;
-  iteration = 0;
-  resetLEDs();
-}
 
