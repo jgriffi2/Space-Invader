@@ -6,6 +6,8 @@ int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
+int addEmenyIteration = 0;
+
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
 
@@ -106,7 +108,7 @@ void loop() {
         alive = 0;
       }
     }
-    
+
     // move enemies
     if (iteration == waitPeriod) {
       if (checkDirection()) moveEnemiesDown();
@@ -114,7 +116,11 @@ void loop() {
       iteration = 0;
       waitPeriod--;
     }
-    iteration++;  
+    if (addEmemyIteration == 10 * waitPeriod) {
+      addEmemyIteration = 0;
+      addEmemy();
+    }
+    iteration++;
   } else {
     death_blink();
     reset_board();
@@ -123,8 +129,10 @@ void loop() {
 
 static void destroyEnemies() {
   for (int[3] enemy : enemies) {
-    if (player[0] == enemy[0] && player[1] == enemy[1]) {
-      LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
+    if (enemy[2] != -1) {
+      if (player[0] == enemy[0] && player[1] == enemy[1]) {
+        LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
+      }
     }
   }
 }
@@ -141,41 +149,55 @@ static void resetLEDs() {
 
 static void checkDirection() {
   for (int[3] enemy : enemies) {
-    if (positive) {
-      if (enemy[0] == 3) positive = !positive;
-    } else {
-      if (enemy[0] == 0) positive = !positive;
+    if (enemy[2] != -1) {
+      if (positive) {
+        if (enemy[0] == 3) positive = !positive;
+      } else {
+        if (enemy[0] == 0) positive = !positive;
+      }
     }
   }
 }
 
 static void moveEnemiesDown() {
   for (int[3] enemy : enemies) {
-    enemy[2] = enemy[2] - 1;
-    if (enemy[2] == 0) {
-      alive--;
-      reset_board();
+    if (enemy[2] != -1) {
+      enemy[2] = enemy[2] - 1;
+      if (enemy[2] == 0) {
+        alive--;
+        reset_board();
+      }
     }
   }
 }
 
 static void moveEnemiesSide() {
-  for (int[3] enemy: enemies) {
-    if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
-    else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
+  for (int[3] enemy : enemies) {
+    if (enemy[2] != -1) {
+      if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
+      else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
+    }
   }
 
-static void death_blink() {
-  for (byte i = 0; i < 5; i++) {
-    display(LEDon);
-    delay(1000);
+  static void death_blink() {
+    for (byte i = 0; i < 5; i++) {
+      display(allOn);
+      delay(1000);
+    }
   }
-}
 
-static void reset_board() {
-  player = {0,0,0};
-  for (int enemy = 0; enemy < maxEnemies; enemy++) {
-    enemies[enemy] = {0,0,0};
+  static void reset_board() {
+    alive = 1;
+
+
   }
-}
+
+  static void addEmeny() {
+    for (int i = 0; i < maxEmenies; i++) {
+      int enemy[3] = enemies[i];
+      if (enemy[2] == -1) {
+        enemy = { (int)random(0, 4), (int)random(0, 4), 3 };
+      }
+    }
+  }
 
