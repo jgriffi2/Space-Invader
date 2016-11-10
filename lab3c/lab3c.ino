@@ -1,16 +1,10 @@
 int player[3];
 int maxEnemies = 16;
 int enemies[maxEnemies][3];
-int velocity;
+int velocity = 100;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
-
-// vector of int[3] for enemies, int[3] holds x, y, z positions
-// int[3] for player, holds x, y, z positions
-// int for velocity
-// int for numEnemies (might not need this if we have vector
-// bool for alive
 
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
