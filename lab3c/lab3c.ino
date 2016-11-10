@@ -6,7 +6,7 @@ int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
-int addEmenyIteration = 0;
+int addEnemyIteration = 0;
 
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
@@ -19,6 +19,7 @@ void setup() {
     pinMode(NEGATIVE_PINS[i], OUTPUT);
     digitalWrite(NEGATIVE_PINS[i], HIGH);
   }
+  reset_board();
 
   Serial.begin(115200);
   Serial.setTimeout(100);
@@ -59,8 +60,7 @@ inline byte getValue(byte values[4][4][4], byte pNum, byte nNum)
    one row at a time. When this function returns, all the LEDs will be off
    again, so it needs to be called continuously for LEDs to be on.
 */
-void display(byte values[4][4][4])
-{
+void display(byte values[4][4][4]) {
   for (byte pNum = 0; pNum < 8; pNum++) { // iterate through P-wires
 
     // Set up all the N-wires first
@@ -88,20 +88,9 @@ void loop() {
     // move player
     if (Serial.available()) {
       char control = Serial.read();
-      if (control == 'U') {
-        if (player[1] != 3) player[1] = player[1] + 1;
-
-      } else if (control == 'D') {
-        if (player[1] != 0) player[1] = player[1] - 1;
-
-      } else if (control == 'L') {
-        if (player[0] != 0) player[1] = player[1] - 1;
-
-      } else if (control == 'R') {
-        if (player[0] != 3) player[1] = player[1] + 1;
-
+      if (control == 'U' || control == 'D' || control == 'L' || control == 'R') {
+        movePlayer(control);
       } else if (control == 'S') {
-        // check if enemy has same xy coords (destroy if so)
         destroyEnemies();
       } else if (control == 'Q') {
         resetLEDs();
@@ -121,9 +110,25 @@ void loop() {
       addEmemy();
     }
     iteration++;
+    display(LEDon);
   } else {
     death_blink();
     reset_board();
+  }
+}
+
+static void movePlayer(control) {
+  if (control == 'U') {
+    if (player[1] != 3) player[1] = player[1] + 1;
+
+  } else if (control == 'D') {
+    if (player[1] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'L') {
+    if (player[0] != 0) player[1] = player[1] - 1;
+
+  } else if (control == 'R') {
+    if (player[0] != 3) player[1] = player[1] + 1;
   }
 }
 
@@ -181,19 +186,24 @@ static void moveEnemiesSide() {
 
   static void death_blink() {
     for (byte i = 0; i < 5; i++) {
-      display(allOn);
+      display(LEDon);
       delay(1000);
     }
   }
 
   static void reset_board() {
-    alive = 1;
-
+    player = {0, 0, 0};
+    for (int enemy = 0; enemy < maxEnemies; enemy++) {
+      enemies[enemy] = {0, 0, -1};
+    }
+    waitPeriod = 100;
+    iteration = 0;
+    resetLEDs();
 
   }
 
-  static void addEmeny() {
-    for (int i = 0; i < maxEmenies; i++) {
+  static void addEnemy() {
+    for (int i = 0; i < maxEnemies; i++) {
       int enemy[3] = enemies[i];
       if (enemy[2] == -1) {
         enemy = { (int)random(0, 4), (int)random(0, 4), 3 };
