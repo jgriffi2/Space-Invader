@@ -1,28 +1,34 @@
 int player[3];
 int maxEnemies = 16;
 int enemies[16][3];
-int waitPeriod = 100;
+int waitPeriod = 200;
+int addMultiplier = 2;
 int iteration = 0;
 int alive = 1;
 byte LEDon[4][4][4];
 bool positive;
 int addEnemyIteration = 0;
+int x = 2;
+int y = 1;
+int z = 0;
+int death_blink_wait = 25;
 
 const byte POSITIVE_PINS[8] = {3, 5, 9, 7, 2, 4, 8, 6};
 const byte NEGATIVE_PINS[8] = {A3, A5, A1, 12, A2, A4, 13, 11};
 
 static void movePlayer(char control) {
+  LEDon[player[z]][player[y]][player[2]] = 0;
   if (control == 'U') {
-    if (player[1] != 3) player[1] = player[1] + 1;
+    if (player[y] < 3) player[y] = player[y] + 1;
 
   } else if (control == 'D') {
-    if (player[1] != 0) player[1] = player[1] - 1;
+    if (player[y] > 0) player[y] = player[y] - 1;
 
   } else if (control == 'L') {
-    if (player[0] != 0) player[0] = player[1] - 1;
+    if (player[2] > 0) player[2] = player[2] - 1;
 
   } else if (control == 'R') {
-    if (player[0] != 3) player[0] = player[1] + 1;
+    if (player[2] < 3) player[2] = player[2] + 1;
   }
 }
 
@@ -30,9 +36,9 @@ static void destroyEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     int enemy[3];
     memcpy(enemy, enemies[i], sizeof(int[3]));
-    if (enemy[2] != -1) {
-      if (player[0] == enemy[0] && player[1] == enemy[1]) {
-        LEDon[enemy[0]][enemy[1]][enemy[2]] = 0;
+    if (enemy[x] != -1) {
+      if (player[x] == enemy[x] && player[y] == enemy[y]) {
+        LEDon[enemy[z]][enemy[y]][enemy[x]] = 0;
         int temp[3] = {0, 0, -1};
         memcpy(enemies[i], temp, sizeof(int[3]));
       }
@@ -54,20 +60,21 @@ static bool checkDirection() {
   for (int i = 0; i < maxEnemies; i++) {
     int enemy[3];
     memcpy(enemy, enemies[i], sizeof(int[3]));
-    if (enemy[2] != -1) {
+    if (enemy[x] != -1) {
       if (positive) {
-        if (enemy[0] == 3) {
+        if (enemy[x] == 3) {
           positive = !positive;
           return true;
         }
       } else {
-        if (enemy[0] == 0) {
+        if (enemy[x] == 0) {
           positive = !positive;
           return true;
         }
       }
     }
   }
+  return false;
 }
 
 static void reset_board() {
@@ -80,17 +87,16 @@ static void reset_board() {
   waitPeriod = 100;
   iteration = 0;
   resetLEDs();
-
 }
 
 static void moveEnemiesDown() {
   for (int i = 0; i < maxEnemies; i++) {
     int enemy[3];
     memcpy(enemy, enemies[i], sizeof(int[3]));
-    if (enemy[2] != -1) {
-      enemy[2] = enemy[2] - 1;
+    if (enemy[x] != -1) {
+      enemy[z] = enemy[z] - 1;
       memcpy(enemies[i], enemy, sizeof(int[3]));
-      if (enemy[2] == 0) {
+      if (enemy[z] == 0) {
         alive--;
         reset_board();
       }
@@ -102,30 +108,38 @@ static void moveEnemiesSide() {
   for (int i = 0; i < maxEnemies; i++) {
     int enemy[3];
     memcpy(enemy, enemies[i], sizeof(int[3]));
-    if (enemy[2] != -1) {
-      if (positive && enemy[0] != 3) enemy[0] = enemy[0] + 1;
-      else if (!positive && enemy[0] != 0) enemy[0] = enemy[0] - 1;
+    if (enemy[x] != -1) {
+      if (positive && enemy[x] != 3) enemy[x] = enemy[x] + 1;
+      else if (!positive && enemy[x] != 0) enemy[x] = enemy[x] - 1;
       memcpy(enemies[i], enemy, sizeof(int[3]));
     }
   }
 }
 
 static void death_blink() {
-  for (byte i = 0; i < 5; i++) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      for (int k = 0; k < 4; k++) {
+        LEDon[i][j][k] = 1;
+      }
+    }
+  }
+  int death_blink_period = 0;
+  while (death_blink_period < death_blink_wait) {
     display(LEDon);
     delay(1000);
+    death_blink_period = death_blink_period + 1;
   }
 }
-
-
 
 static void addEnemy() {
   for (int i = 0; i < maxEnemies; i++) {
     int enemy[3];
     memcpy(enemy, enemies[i], sizeof(int[3]));
-    if (enemy[2] == -1) {
-      int temp[3] = { (int)random(0, 4), (int)random(0, 4), 3 };
+    if (enemy[x] == -1) {
+      int temp[3] = { 3, (int)random(0, 4), (int)random(0, 4) };
       memcpy(enemies[i], temp, sizeof(int[3]));
+      break;
     }
   }
 }
@@ -144,41 +158,23 @@ void setup() {
   Serial.setTimeout(100);
 }
 
-/* Function: getValue
-   ------------------
-   Returns the value in a 4x4x4 values array, each dimension representing an
-   axis of the LED cube, that corresponds to the given P-wire and N-wire
-   number.
-
-   This function is called by display(), in order to find whether an LED for a
-   particular P-wire and N-wire should be switched on.
-*/
 inline byte getValue(byte values[4][4][4], byte pNum, byte nNum)
 {
-  byte x;
-  byte y = pNum % 4;
-  byte z = nNum % 4;
+  byte xp;
+  byte yp = pNum % 4;
+  byte zp = nNum % 4;
 
   if (nNum <= 3) {
-    if (pNum <= 3) x = 3;
-    else x = 0;
+    if (pNum <= 3) xp = 3;
+    else xp = 0;
   } else {
-    if (pNum <= 3) x = 2;
-    else x = 1;
+    if (pNum <= 3) xp = 2;
+    else xp = 1;
   }
 
-  return values[x][y][z];
+  return values[xp][yp][zp];
 }
 
-/* Function: display
-   -----------------
-   Runs through one multiplexing cycle of the LEDs, controlling which LEDs are
-   on.
-
-   During this function, LEDs that should be on will be turned on momentarily,
-   one row at a time. When this function returns, all the LEDs will be off
-   again, so it needs to be called continuously for LEDs to be on.
-*/
 void display(byte values[4][4][4]) {
   for (byte pNum = 0; pNum < 8; pNum++) { // iterate through P-wires
 
@@ -195,6 +191,17 @@ void display(byte values[4][4][4]) {
 
     digitalWrite(POSITIVE_PINS[pNum], HIGH);
 
+  }
+}
+
+void turnLEDsOn() {
+  LEDon[player[z]][player[y]][player[x]] = 1;
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[x] != -1) {
+      LEDon[enemy[z]][enemy[y]][enemy[x]] = 1;
+    }
   }
 }
 
@@ -218,17 +225,19 @@ void loop() {
     }
 
     // move enemies
-    if (iteration == waitPeriod) {
+    if (iteration >= waitPeriod) {
       if (checkDirection()) moveEnemiesDown();
       else moveEnemiesSide();
       iteration = 0;
-      waitPeriod--;
+      if (waitPeriod > 0) waitPeriod--;
     }
-    if (addEnemyIteration == 10 * waitPeriod) {
+    if (addEnemyIteration >= addMultiplier * waitPeriod) {
       addEnemyIteration = 0;
       addEnemy();
     }
     iteration++;
+    addEnemyIteration++;
+    turnLEDsOn();
     display(LEDon);
   } else {
     death_blink();
