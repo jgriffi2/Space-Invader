@@ -19,10 +19,10 @@ static void movePlayer(char control) {
     if (player[1] != 0) player[1] = player[1] - 1;
 
   } else if (control == 'L') {
-    if (player[0] != 0) player[1] = player[1] - 1;
+    if (player[0] != 0) player[0] = player[1] - 1;
 
   } else if (control == 'R') {
-    if (player[0] != 3) player[1] = player[1] + 1;
+    if (player[0] != 3) player[0] = player[1] + 1;
   }
 }
 
@@ -70,18 +70,18 @@ static bool checkDirection() {
   }
 }
 
- static void reset_board() {
-    int newPlayer[3] = {0, 0, 0};
-    memcpy(player, newPlayer, sizeof(int[3]));
-    for (int enemy = 0; enemy < maxEnemies; enemy++) {
-      int temp[3] = {0, 0, -1};
-      memcpy(enemies[enemy], temp, sizeof(int[3]));
-    }
-    waitPeriod = 100;
-    iteration = 0;
-    resetLEDs();
-
+static void reset_board() {
+  int newPlayer[3] = {0, 0, 0};
+  memcpy(player, newPlayer, sizeof(int[3]));
+  for (int enemy = 0; enemy < maxEnemies; enemy++) {
+    int temp[3] = {0, 0, -1};
+    memcpy(enemies[enemy], temp, sizeof(int[3]));
   }
+  waitPeriod = 100;
+  iteration = 0;
+  resetLEDs();
+
+}
 
 static void moveEnemiesDown() {
   for (int i = 0; i < maxEnemies; i++) {
@@ -110,25 +110,25 @@ static void moveEnemiesSide() {
   }
 }
 
-  static void death_blink() {
-    for (byte i = 0; i < 5; i++) {
-      display(LEDon);
-      delay(1000);
+static void death_blink() {
+  for (byte i = 0; i < 5; i++) {
+    display(LEDon);
+    delay(1000);
+  }
+}
+
+
+
+static void addEnemy() {
+  for (int i = 0; i < maxEnemies; i++) {
+    int enemy[3];
+    memcpy(enemy, enemies[i], sizeof(int[3]));
+    if (enemy[2] == -1) {
+      int temp[3] = { (int)random(0, 4), (int)random(0, 4), 3 };
+      memcpy(enemies[i], temp, sizeof(int[3]));
     }
   }
-
- 
-
-  static void addEnemy() {
-    for (int i = 0; i < maxEnemies; i++) {
-      int enemy[3];
-      memcpy(enemy, enemies[i], sizeof(int[3]));
-      if (enemy[2] == -1) {
-        int temp[3] = { (int)random(0, 4), (int)random(0, 4), 3 };
-        memcpy(enemies[i], temp, sizeof(int[3]));
-      }
-    }
-  }
+}
 
 void setup() {
   // Make all of the N-wire and P-wire pins outputs
@@ -233,7 +233,6 @@ void loop() {
   } else {
     death_blink();
     reset_board();
-    alive = 1;
   }
 }
 

@@ -12,17 +12,17 @@ class UserInputController(object):
     while True:
       char = repr(readchar.readkey())
       if char == "'\\x1b[A'" or char == "'w'":
-        self.ser.write('U')
+        self.ser.write(b"U")
       elif char == "'\\x1b[C'" or char == "'d'":
-        self.ser.write('R')
+        self.ser.write(b"R")
       elif char == "'\\x1b[D'" or char == "'a'":
-        self.ser.write('L')
+        self.ser.write(b"L")
       elif char == "'\\x1b[B'" or char == "'s'":
-        self.ser.write('D')
+        self.ser.write(b"D")
       elif char == "' '":
-        self.ser.write('S')
+        self.ser.write(b"S")
       elif char == "'q'":
-        self.ser.write('Q')
+        self.ser.write(b"Q")
         return
       else:
         continue
