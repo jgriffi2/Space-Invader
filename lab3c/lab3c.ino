@@ -229,6 +229,7 @@ void loop() {
       addEnemy();
     }
     iteration++;
+    addEnemyIteration++;
     display(LEDon);
   } else {
     death_blink();
