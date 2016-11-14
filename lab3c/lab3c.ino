@@ -237,7 +237,10 @@ void loop() {
     }
     iteration++;
     addEnemyIteration++;
+<<<<<<< HEAD
     turnLEDsOn();
+=======
+>>>>>>> 007496834b3454b1bd93dfd8374bd8f8869630e4
     display(LEDon);
   } else {
     death_blink();
